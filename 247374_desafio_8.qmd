@@ -1,0 +1,193 @@
+---
+title: "Desafio_8"
+format: html
+editor: visual
+---
+
+# 1 - Baixe o arquivo "uwmadison.sqlite3". Conecte-se a ele usando o pacote RSQLite, armazenando a conexão em uma variável conn.
+
+```{r}
+library(RSQLite)
+
+conn <- RSQLite::dbConnect(RSQLite::SQLite(), dbname = "uwmadison.sqlite3")
+
+RSQLite::dbGetQuery(conn, "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;")
+```
+
+# 2 - Quem são e quantos são os professores que lecionaram disciplinas cujo tópico era estatística (subjects.abbreviation='STAT');
+
+```{r}
+#Para Reutilizar a parte dos joins que é semelhante, podemos quebrar as buscas em duas partes
+
+#Quantos professores lecionaram "STAT"
+count_query <- "SELECT COUNT(DISTINCT ins.id) AS instructors_count"
+
+#Quais professores lecionaram stat
+select_query <- "SELECT DISTINCT ins.id AS instructor_id, ins.name"
+
+#resto da busca
+join_query <-"
+FROM instructors ins
+JOIN teachings t ON ins.id = t.instructor_id
+JOIN sections sec ON t.section_uuid = sec.uuid
+JOIN subject_memberships sm ON sec.course_offering_uuid = sm.course_offering_uuid
+JOIN subjects s ON sm.subject_code = s.code
+WHERE s.abbreviation = 'STAT'
+ORDER BY ins.name;"
+```
+
+### Quais Professores Lecionaram disciplinas de Estatística
+```{r}
+busca <- paste(select_query, join_query)
+
+lista_professores_stat <- RSQLite::dbGetQuery(conn, busca)
+
+lista_professores_stat
+```
+
+### Quais Professores Lecionaram disciplinas de Estatística
+```{r}
+busca <- paste(count_query, join_query)
+
+RSQLite::dbGetQuery(conn, busca)
+```
+
+# 3 - O GPA americano é definido numa escala de 0 a 4, em que A = 4, AB = 3.5, B = 3, BC = 2.5, C = 2, D = 1 e F = 0. Determinando a nota média de cada oferecimento pela ponderação da quantidade de alunos em cada extrato com os valores numéricos de cada conceito, indique (no que se referente a disciplinas no assunto de estatística):
+
+```{r}
+segregar_gpas <-"
+WITH
+gd AS (
+  SELECT
+    course_offering_uuid,
+    SUM(COALESCE(a_count,0))   AS a_count,
+    SUM(COALESCE(ab_count,0))  AS ab_count,
+    SUM(COALESCE(b_count,0))   AS b_count,
+    SUM(COALESCE(bc_count,0))  AS bc_count,
+    SUM(COALESCE(c_count,0))   AS c_count,
+    SUM(COALESCE(d_count,0))   AS d_count,
+    SUM(COALESCE(f_count,0))   AS f_count
+  FROM grade_distributions
+  GROUP BY course_offering_uuid
+),
+offerings AS (
+  SELECT
+    co.uuid                        AS course_offering_uuid,
+    co.course_uuid                 AS course_uuid,
+    (gd.a_count + gd.ab_count + gd.b_count + gd.bc_count + gd.c_count + gd.d_count + gd.f_count) AS total_students,
+    CASE
+      WHEN (gd.a_count + gd.ab_count + gd.b_count + gd.bc_count + gd.c_count + gd.d_count + gd.f_count) > 0
+      THEN (
+        4.0 * gd.a_count
+        + 3.5 * gd.ab_count
+        + 3.0 * gd.b_count
+        + 2.5 * gd.bc_count
+        + 2.0 * gd.c_count
+        + 1.0 * gd.d_count
+      ) / NULLIF(
+        (gd.a_count + gd.ab_count + gd.b_count + gd.bc_count + gd.c_count + gd.d_count + gd.f_count),
+        0
+      )
+      ELSE NULL
+    END AS offering_gpa
+  FROM course_offerings co
+  JOIN gd ON gd.course_offering_uuid = co.uuid
+  JOIN subject_memberships sm ON sm.course_offering_uuid = co.uuid
+  JOIN subjects s ON s.code = sm.subject_code
+  WHERE s.abbreviation = 'STAT'
+),
+offering_instructor AS (
+  SELECT DISTINCT
+    t.instructor_id,
+    o.course_offering_uuid,
+    o.offering_gpa
+  FROM offerings o
+  JOIN sections sec ON sec.course_offering_uuid = o.course_offering_uuid
+  JOIN teachings t ON t.section_uuid = sec.uuid),
+instructor_avg AS (
+  SELECT
+    ins.id           AS instructor_id,
+    ins.name         AS instructor_name,
+    AVG(oig.offering_gpa) AS avg_gpa,
+    COUNT(*)         AS offerings_count
+  FROM offering_instructor oig
+  JOIN instructors ins ON ins.id = oig.instructor_id
+  GROUP BY ins.id, ins.name
+),
+course_avg AS (
+  SELECT
+    c.uuid        AS course_uuid,
+    c.name        AS course_name,
+    AVG(o.offering_gpa) AS avg_gpa,
+    COUNT(*)      AS offerings_count
+  FROM offerings o
+  JOIN courses c ON c.uuid = o.course_uuid
+  GROUP BY c.uuid, c.name
+)"
+
+```
+
+
+```{r}
+# para encontrar o professor mais difícil selecionamos o menor gpa médio
+
+prof_dificil <-
+"SELECT
+  (SELECT instructor_id FROM instructor_avg ORDER BY avg_gpa ASC NULLS LAST LIMIT 1) AS hardest_instructor_id,
+  (SELECT instructor_name FROM instructor_avg ORDER BY avg_gpa ASC NULLS LAST LIMIT 1) AS hardest_instructor_name,
+  (SELECT avg_gpa FROM instructor_avg ORDER BY avg_gpa ASC NULLS LAST LIMIT 1) AS hardest_instructor_gpa"
+
+busca <- paste(segregar_gpas, prof_dificil)
+RSQLite::dbGetQuery(conn, busca)
+
+```
+
+
+```{r}
+# para encontrar o professor mais facil selecionamos o maior gpa médio
+
+prof_facil <-
+"SELECT
+  (SELECT instructor_id FROM instructor_avg ORDER BY avg_gpa DESC NULLS LAST LIMIT 1) AS easiest_instructor_id,
+  (SELECT instructor_name FROM instructor_avg ORDER BY avg_gpa DESC NULLS LAST LIMIT 1) AS easiest_instructor_name,
+  (SELECT avg_gpa FROM instructor_avg ORDER BY avg_gpa DESC NULLS LAST LIMIT 1) AS easiest_instructor_gpa"
+
+busca <- paste(segregar_gpas, prof_facil)
+RSQLite::dbGetQuery(conn, busca)
+```
+
+
+```{r}
+# para encontrar a disciplina mais dificil selecionamos o menor gpa médio
+
+disc_dificil <-
+"SELECT
+  (SELECT course_uuid FROM course_avg ORDER BY avg_gpa ASC NULLS LAST LIMIT 1) AS hardest_course_uuid,
+  (SELECT course_name FROM course_avg ORDER BY avg_gpa ASC NULLS LAST LIMIT 1) AS hardest_course_name,
+  (SELECT avg_gpa FROM course_avg ORDER BY avg_gpa ASC NULLS LAST LIMIT 1) AS hardest_course_gpa"
+
+busca <- paste(segregar_gpas, disc_dificil)
+RSQLite::dbGetQuery(conn, busca)
+```
+
+
+```{r}
+# para encontrar a disciplina mais facil selecionamos o maior gpa médio
+
+disc_facil <-
+"SELECT
+  (SELECT course_uuid FROM course_avg ORDER BY avg_gpa DESC NULLS LAST LIMIT 1) AS easiest_course_uuid,
+  (SELECT course_name FROM course_avg ORDER BY avg_gpa DESC NULLS LAST LIMIT 1) AS easiest_course_name,
+  (SELECT avg_gpa FROM course_avg ORDER BY avg_gpa DESC NULLS LAST LIMIT 1) AS easiest_course_gpa"
+
+busca <- paste(segregar_gpas, disc_facil)
+RSQLite::dbGetQuery(conn, busca)
+
+```
+
+
+# 4 - Desconecte do banco de dados.
+```{r}
+RSQLite::dbDisconnect(conn)
+```
+
