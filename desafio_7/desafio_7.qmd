@@ -231,6 +231,3 @@ Desconecta do database
 ```{r}
 dbDisconnect(db) 
 ```
-
-
-
