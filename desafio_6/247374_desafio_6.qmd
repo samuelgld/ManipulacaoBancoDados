@@ -1,0 +1,161 @@
+---
+title: "247374_desafio_6"
+format: html
+editor: visual
+---
+
+## 247374_desafio_6
+
+```{r}
+install.packages("RSQLite")
+```
+
+
+```{r}
+
+library(DBI)
+library(RSQLite)
+
+path <- "disco.db"    
+conn <- dbConnect(RSQLite::SQLite(), path)
+
+#lista todas as tabelas
+dbGetQuery(conn, "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;")
+```
+
+```{r}
+#mostra schema da tabela custumers
+dbGetQuery(conn, "PRAGMA table_info(customers);")
+```
+
+```{r}
+
+#soma os clientes
+dbGetQuery(conn, "SELECT COUNT(*) AS qt_clientes FROM customers;")
+```
+
+```{r}
+
+#soma os paises
+dbGetQuery(conn, "SELECT COUNT(DISTINCT Country) AS qtd_paises FROM customers;")
+```
+
+```{r}
+dbGetQuery(conn, "
+  SELECT Country, COUNT(*) AS qtd_clientes
+  FROM customers
+  GROUP BY Country
+  ORDER BY qtd_clientes DESC;
+")
+```
+
+```{r}
+dbGetQuery(conn, "
+  SELECT Country, COUNT(*) AS qtd_clientes
+  FROM customers
+  GROUP BY Country
+  ORDER BY qtd_clientes DESC
+  LIMIT 5;
+")
+```
+
+```{r}
+dbGetQuery(conn, "
+  SELECT DISTINCT Country
+  FROM customers
+  WHERE LENGTH(Country) = 6
+")
+```
+
+```{r}
+dbGetQuery(conn, "
+SELECT DISTINCT
+  t.TrackId,
+  t.Name AS TrackName,
+  ar.Name AS Artist,
+  al.Title AS Album
+FROM customers c
+JOIN invoices i       ON c.CustomerId = i.CustomerId
+JOIN invoice_items ii ON i.InvoiceId = ii.InvoiceId
+JOIN tracks t         ON ii.TrackId = t.TrackId
+LEFT JOIN albums al   ON t.AlbumId = al.AlbumId
+LEFT JOIN artists ar  ON al.ArtistId = ar.ArtistId
+WHERE c.Country IN ('Brazil','Brasil')
+ORDER BY TrackName;
+")
+```
+
+```{r}
+#Qual o álbum mais tocado por pais?
+
+dbGetQuery(conn, 
+"SELECT Country, AlbumId, AlbumTitle, ArtistName, total_plays
+FROM (
+  SELECT
+    Country,
+    AlbumId,
+    AlbumTitle,
+    ArtistName,
+    total_plays,
+    ROW_NUMBER() OVER (PARTITION BY Country ORDER BY total_plays DESC, AlbumTitle) AS rn
+  FROM (
+    SELECT c.Country,
+           a.AlbumId,
+           a.Title    AS AlbumTitle,
+           ar.Name    AS ArtistName,
+           SUM(ii.Quantity) AS total_plays
+    FROM customers c
+    JOIN invoices i        ON c.CustomerId = i.CustomerId
+    JOIN invoice_items ii  ON i.InvoiceId = ii.InvoiceId
+    JOIN tracks t          ON ii.TrackId = t.TrackId
+    JOIN albums a          ON t.AlbumId = a.AlbumId
+    LEFT JOIN artists ar   ON a.ArtistId = ar.ArtistId
+    GROUP BY c.Country, a.AlbumId
+  )
+)
+WHERE rn = 1
+ORDER BY Country;"
+)
+
+```
+
+```{r}
+#Qual o artista mais tocado por pais?
+
+dbGetQuery(conn, 
+"SELECT Country, ArtistId, ArtistName, total_plays
+FROM (
+  SELECT
+    Country,
+    ArtistId,
+    ArtistName,
+    total_plays,
+    ROW_NUMBER() OVER (PARTITION BY Country ORDER BY total_plays DESC, ArtistName) AS rn
+  FROM (
+    SELECT c.Country,
+           ar.ArtistId,
+           ar.Name AS ArtistName,
+           SUM(ii.Quantity) AS total_plays
+    FROM customers c
+    JOIN invoices i        ON c.CustomerId = i.CustomerId
+    JOIN invoice_items ii  ON i.InvoiceId = ii.InvoiceId
+    JOIN tracks t          ON ii.TrackId = t.TrackId
+    JOIN albums al         ON t.AlbumId = al.AlbumId
+    JOIN artists ar        ON al.ArtistId = ar.ArtistId
+    GROUP BY c.Country, ar.ArtistId
+  )
+)
+WHERE rn = 1
+ORDER BY Country;"
+)
+
+```
+
+
+
+```{r}
+dbDisconnect(conn)
+```
+
+
+
