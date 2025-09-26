@@ -1,0 +1,41 @@
+---
+title: "Untitled"
+format: html
+editor: visual
+---
+
+
+# Read.csv base do R
+```{r}
+start.time <- Sys.time()
+
+read.csv("flights.zip")
+
+end.time <- Sys.time()
+time.taken <- end.time - start.time
+time.taken
+```
+
+# Read_csv base do R
+
+```{r}
+library(readr)
+
+start.time <- Sys.time()
+
+read_csv("flights.zip")
+
+end.time <- Sys.time()
+time.taken <- end.time - start.time
+time.taken
+
+```
+
+
+```{python}
+import pandas as pd
+import timeit
+
+timeit.timeit('pd.read_csv("flights.zip")', number=10000, globals=globals())
+
+```
