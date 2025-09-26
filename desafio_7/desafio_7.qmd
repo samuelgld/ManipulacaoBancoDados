@@ -1,0 +1,236 @@
+---
+title: "desafio7_247374"
+format: html
+editor: visual
+---
+
+## 247374
+
+Carregando Database
+
+```{r}
+library(RSQLite)
+library(tidyverse)
+if(!"discoCopy.db" %in% list.files("../")){
+file.copy("dados/disco.db", "../discoCopy.db")
+} # Modificaremos esse arquivo
+
+```
+
+```{r}
+db <- dbConnect(SQLite(),
+"../discoCopy.db")
+```
+
+Criando tabela de instrumentos
+
+```{r}
+dbExecute(db,
+"CREATE TABLE instruments
+(AlbumId INTEGER,
+TrackId INTEGER,
+ElectricGuitar INTEGER,
+Singer INTEGER,
+Trumpet INTEGER)")
+```
+
+```{r}
+
+dbListFields(db,
+'instruments')
+
+#dbExecute(db, "DROP TABLE instruments")
+
+```
+
+Discutindo maneiras de executar queries e vunerabilidades 
+
+```{r}
+#NÃO UTILIZAR, SUJEITO A VUNERABILIDADES
+
+# aname = "Gilberto Gil"
+# sql = paste0("SELECT ArtistId FROM artists "
+# ,
+# "WHERE Name = '"
+# , aname,
+# "'")
+# aId = dbGetQuery(db, sql)
+# sql = paste('SELECT Title FROM albums'
+# ,
+# 'WHERE ArtistId ='
+# , aId)
+# dbGetQuery(db, sql)
+
+```
+
+```{r}
+#MANEIRA CORRETA
+
+sql = paste("SELECT ArtistId FROM artists"
+,
+"WHERE Name = ?")
+query <- dbSendQuery(db, sql)
+dbBind(query, list("Gilberto Gil"))
+aId <- dbFetch(query)
+dbClearResult(query)
+# Segundo passo interno, não deve causar problema
+sql = paste('SELECT Title FROM albums'
+,
+'WHERE ArtistId ='
+, aId)
+dbGetQuery(db, sql)
+
+```
+
+```{r}
+# Eu Tu Eles: AlbumId 85,
+sql = paste('SELECT TrackId, Name FROM tracks'
+,
+'WHERE AlbumId = 85')
+dbGetQuery(db, sql) %>% head
+
+```
+
+Inserção e busca de instrumentos
+
+```{r}
+dbExecute(db,
+"INSERT INTO instruments
+VALUES ('85'
+,
+'1075'
+, 0, 1, 0),
+('85'
+,
+'1078'
+, 0, 1, 0); ")
+
+dbGetQuery(db,
+"SELECT * FROM instruments")
+```
+
+Inserindo diretamente
+
+```{r}
+dbWriteTable(db,
+"mtcars"
+, mtcars)
+dbListTables(db)
+
+dbGetQuery(db,
+"SELECT * FROM mtcars") %>% head(3)
+```
+
+```{r}
+theAvgCar <- mtcars %>%
+summarise_all(function(x) round(mean(x), 2))
+theAvgCar
+
+dbWriteTable(db,
+"mtcars"
+, theAvgCar, append = TRUE)
+dbGetQuery(db,
+"SELECT * FROM mtcars") %>% tail(3)
+
+```
+
+```{r}
+dbWriteTable(db,
+"mtcars"
+, mtcars, overwrite = TRUE)
+dbGetQuery(db,
+"SELECT * FROM mtcars") %>% tail(3)
+
+```
+
+Lendo em Chunks
+
+```{r}
+res <- dbSendQuery(db,
+"SELECT * FROM mtcars WHERE cyl = 4")
+while(!dbHasCompleted(res)){
+chunk <- dbFetch(res, n = 5)
+print(nrow(chunk))
+}
+
+```
+
+```{r}
+dbClearResult(res)
+
+```
+
+Desconectando do db
+
+```{r}
+dbDisconnect(db)
+if("discoCopy.db" %in% list.files("../dados/")){
+file.remove("../dados/discoCopy.db")
+}
+```
+
+# Airports
+
+Criando o database "air.db"
+
+```{r}
+airports <- read_csv("dados/airports.csv"
+, col_types = "cccccdd")
+airlines <- read_csv("dados/airlines.csv"
+, col_types = "cc")
+
+air <- dbConnect(SQLite(), dbname="dados/air.db")
+dbWriteTable(air, name = "airports"
+, airports)
+dbWriteTable(air, name = "airlines"
+, airlines)
+dbListTables(air)
+```
+
+Desconecta e deleta arquivo
+
+```{r}
+dbDisconnect(air)
+if("air.db" %in% list.files("dados/")){
+file.remove("dados/air.db")
+}
+```
+
+Usando dbplyr
+
+```{r}
+library(dbplyr)
+db <- dbConnect(SQLite(),"dados/disco.db") # original
+tracks <- tbl(db,
+"tracks") # dplyr
+tracks %>% head(3)
+```
+
+Tira a média do preço das tracks
+
+```{r}
+meanTracks <- tracks %>%
+group_by(AlbumId) %>%
+summarise(AvLen = mean(Milliseconds, na.rm = TRUE),
+AvCost = mean(UnitPrice, na.rm = TRUE))
+meanTracks
+
+```
+
+```{r}
+meanTracks %>% show_query()
+```
+
+```{r}
+mT <- meanTracks %>% collect()
+mT
+```
+
+Desconecta do database
+
+```{r}
+dbDisconnect(db) 
+```
+
+
+
