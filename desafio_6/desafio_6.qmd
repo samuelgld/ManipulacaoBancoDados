@@ -152,10 +152,10 @@ ORDER BY Country;"
 ```
 
 
-
 ```{r}
 dbDisconnect(conn)
 ```
+
 
 
 
