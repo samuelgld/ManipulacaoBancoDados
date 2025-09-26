@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>247374_desafio_6</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="247374_desafio_6_files/libs/clipboard/clipboard.min.js"></script>
+<script src="247374_desafio_6_files/libs/quarto-html/quarto.js"></script>
+<script src="247374_desafio_6_files/libs/quarto-html/popper.min.js"></script>
+<script src="247374_desafio_6_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="247374_desafio_6_files/libs/quarto-html/anchor.min.js"></script>
+<link href="247374_desafio_6_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="247374_desafio_6_files/libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="247374_desafio_6_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="247374_desafio_6_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="247374_desafio_6_files/libs/bootstrap/bootstrap-1bc8a17f135ab3d594c857e9f48e611b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">247374_desafio_6</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="desafio_6" class="level2">
+<h2 class="anchored" data-anchor-id="desafio_6">247374_desafio_6</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DBI)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RSQLite)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>path <span class="ot">&lt;-</span> <span class="st">"disco.db"</span>    </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>conn <span class="ot">&lt;-</span> <span class="fu">dbConnect</span>(RSQLite<span class="sc">::</span><span class="fu">SQLite</span>(), path)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">#lista todas as tabelas</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(conn, <span class="st">"SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              name
+1           albums
+2          artists
+3        customers
+4        employees
+5           genres
+6    invoice_items
+7         invoices
+8      media_types
+9   playlist_track
+10       playlists
+11 sqlite_sequence
+12    sqlite_stat1
+13          tracks</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#mostra schema da tabela custumers</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(conn, <span class="st">"PRAGMA table_info(customers);"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   cid         name         type notnull dflt_value pk
+1    0   CustomerId      INTEGER       1         NA  1
+2    1    FirstName NVARCHAR(40)       1         NA  0
+3    2     LastName NVARCHAR(20)       1         NA  0
+4    3      Company NVARCHAR(80)       0         NA  0
+5    4      Address NVARCHAR(70)       0         NA  0
+6    5         City NVARCHAR(40)       0         NA  0
+7    6        State NVARCHAR(40)       0         NA  0
+8    7      Country NVARCHAR(40)       0         NA  0
+9    8   PostalCode NVARCHAR(10)       0         NA  0
+10   9        Phone NVARCHAR(24)       0         NA  0
+11  10          Fax NVARCHAR(24)       0         NA  0
+12  11        Email NVARCHAR(60)       1         NA  0
+13  12 SupportRepId      INTEGER       0         NA  0</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#soma os clientes</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(conn, <span class="st">"SELECT COUNT(*) AS qt_clientes FROM customers;"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  qt_clientes
+1          59</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#soma os paises</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(conn, <span class="st">"SELECT COUNT(DISTINCT Country) AS qtd_paises FROM customers;"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  qtd_paises
+1         24</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(conn, <span class="st">"</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT Country, COUNT(*) AS qtd_clientes</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM customers</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="st">  GROUP BY Country</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="st">  ORDER BY qtd_clientes DESC;</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          Country qtd_clientes
+1             USA           13
+2          Canada            8
+3          France            5
+4          Brazil            5
+5         Germany            4
+6  United Kingdom            3
+7        Portugal            2
+8           India            2
+9  Czech Republic            2
+10         Sweden            1
+11          Spain            1
+12         Poland            1
+13         Norway            1
+14    Netherlands            1
+15          Italy            1
+16        Ireland            1
+17        Hungary            1
+18        Finland            1
+19        Denmark            1
+20          Chile            1
+21        Belgium            1
+22        Austria            1
+23      Australia            1
+24      Argentina            1</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(conn, <span class="st">"</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT Country, COUNT(*) AS qtd_clientes</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM customers</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="st">  GROUP BY Country</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="st">  ORDER BY qtd_clientes DESC</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="st">  LIMIT 5;</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Country qtd_clientes
+1     USA           13
+2  Canada            8
+3  France            5
+4  Brazil            5
+5 Germany            4</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(conn, <span class="st">"</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT DISTINCT Country</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM customers</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="st">  WHERE LENGTH(Country) = 6</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Country
+1  Brazil
+2  Canada
+3  Norway
+4  France
+5  Poland
+6  Sweden</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(conn, <span class="st">"</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="st">SELECT DISTINCT</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="st">  t.TrackId,</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="st">  t.Name AS TrackName,</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="st">  ar.Name AS Artist,</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="st">  al.Title AS Album</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="st">FROM customers c</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="st">JOIN invoices i       ON c.CustomerId = i.CustomerId</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="st">JOIN invoice_items ii ON i.InvoiceId = ii.InvoiceId</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="st">JOIN tracks t         ON ii.TrackId = t.TrackId</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="st">LEFT JOIN albums al   ON t.AlbumId = al.AlbumId</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="st">LEFT JOIN artists ar  ON al.ArtistId = ar.ArtistId</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="st">WHERE c.Country IN ('Brazil','Brasil')</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="st">ORDER BY TrackName;</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    TrackId
+1      2190
+2      1345
+3       298
+4      1731
+5      1767
+6      1785
+7      1344
+8       738
+9      2991
+10     3017
+11     1677
+12      264
+13     2205
+14     2235
+15     1959
+16     3029
+17     1165
+18     3009
+19     1868
+20      270
+21     1793
+22     2304
+23     2172
+24     2305
+25     2303
+26     2163
+27     2568
+28     2048
+29     2241
+30     2519
+31      449
+32      352
+33     1722
+34     1941
+35      756
+36     2079
+37      453
+38     1173
+39      343
+40     2762
+41     2181
+42      495
+43     1758
+44     1600
+45     1860
+46     1950
+47     1968
+48     2208
+49     1161
+50     2217
+51      307
+52     1791
+53     1795
+54      750
+55     1348
+56     1159
+57     2309
+58     2770
+59     1794
+60     3247
+61     2499
+62     3438
+63        3
+64     2507
+65     2103
+66     1605
+67     1169
+68     2277
+69     2286
+70     2580
+71       15
+72     2187
+73      501
+74     1749
+75       21
+76     3476
+77     1977
+78     1713
+79     2050
+80     2004
+81     1603
+82      262
+83      489
+84     1986
+85      370
+86     1089
+87     1797
+88     2511
+89     3436
+90      768
+91      903
+92     2214
+93     1858
+94     3021
+95      507
+96      316
+97     1160
+98      280
+99     1346
+100    2097
+101     276
+102     246
+103     780
+104    2067
+105     240
+106    2085
+107    2572
+108     744
+109     234
+110    2118
+111    2022
+112    3488
+113    2250
+114     762
+115    1601
+116    2031
+117    2774
+118    2758
+119    2754
+120     525
+121    2766
+122    2199
+123    2013
+124    1695
+125    2109
+126    2226
+127    2136
+128     289
+129     513
+130    1350
+131    1789
+132    3025
+133     483
+134    1091
+135     334
+136    2040
+137    1158
+138     271
+139    1704
+140    1157
+141    2073
+142     252
+143    2145
+144    1932
+145    1995
+146    2054
+147    1740
+148    1686
+149    2091
+150    2268
+151    1799
+152     447
+153    2052
+154    1866
+155       9
+156    2307
+157    2576
+158    2588
+159    2503
+160    1090
+161    3500
+162     451
+163    3482
+164    3013
+165    3494
+166    3248
+167    2515
+168    2232
+169    1862
+170    1864
+171     774
+172    1153
+173    2584
+174     531
+175     325
+176     258
+177    2154
+178    2295
+179     228
+180    2049
+181    2061
+182     786
+183     519
+184    2223
+185    2196
+186     361
+187    2259
+188    1776
+189    2127
+190     379
+                                                                                   TrackName
+1                                                                                   1/2 Full
+2                                                                      2 Minutes To Midnight
+3                                                                               A Cor Do Sol
+4                                                                                     A Cura
+5                                                                             A Menina Dança
+6                                                                   Abraham, Martin And John
+7                                                                                  Aces High
+8                                                                        Admirável Gado Novo
+9                                                                   All Along The Watchtower
+10                                                                         All I Want Is You
+11                                                                                     Aloha
+12                                                                             Amor De Muito
+13                                                                                    Animal
+14                                                                       Any Colour You Like
+15                                                                                 Aos Leões
+16                                                                                  Babyface
+17                                                                            Back off Bitch
+18                                                                                       Bad
+19                                                                                  Bad Seed
+20                                                                 Banditismo Por Uma Questa
+21                                                                            Be Good Johnny
+22                                                                                   Be Mine
+23                                                                                  Big Wave
+24                                                                         Binky The Doormat
+25                                                                            Bittersweet Me
+26                                                                                     Black
+27                                                                      Black Light Syndrome
+28                                                                                 Bora-Bora
+29                                                                                     Bossa
+30                                                                         Burden In My Hand
+31                                                                          Calling Dr. Love
+32                                                                Carolina Hard-Core Ecstasy
+33                                                                                      Casa
+34                                                                    Caso Você Queira Saber
+35                                                                             Child In Time
+36                                                                               Cinema Mudo
+37                                                                                  Cold Gin
+38                                                                                      Coma
+39                                                                Communication Breakdown(2)
+40                                                                             Cristina Nº 2
+41                                                                                Cropduster
+42                                                                              Cry For Love
+43                                                                        Cérebro Eletrônico
+44                                                                              D'Yer Mak'er
+45                                                                               Damage Inc.
+46                                                                                     Dance
+47                                                                                  Demorou!
+48                                                                                 Dissident
+49                                                                      Don't Cry (Original)
+50                                                                           Don't Look Back
+51                                                                                    Doutor
+52                                                                                Down Under
+53                                                                           Down by the Sea
+54                                                                                   Drifter
+55                                                                                  Duelists
+56                                                                             Dust N' Bones
+57                                                                               Electrolite
+58                                                                               Eu Amo Você
+59                                                                         Everything I Need
+60                                                                       Experiment In Terra
+61                                                                                       Eye
+62                                                                  Fantasia On Greensleeves
+63                                                                           Fast As a Shark
+64                                                                                    Flower
+65                                                                         Flying High Again
+66                                                                          Fool In The Rain
+67                                                                            Garden of Eden
+68                                                                       Get Down, Make Love
+69                                                                                    Get Up
+70                                                                      Girl From A Pawnshop
+71                                                                                   Go Down
+72                                                                             Green Disease
+73                                                                           Grito De Alerta
+74                                                 Heart Of Lothian: Wide Boy / Curtain Call
+75                                                              Hell Ain't A Bad Place To Be
+76                                                                             Help Yourself
+77                                                                           Home Sweet Home
+78                                                                           I Belong To You
+79                                                         I Feel Good (I Got You) - Sossego
+80                                                                                  In Bloom
+81                                                                            In The Evening
+82                                                                           Interlude Zumbi
+83                                                                            Into The Light
+84                                                                                     Intro
+85                                                                             Ipiranga 2001
+86                                                                       Is This Love (Live)
+87                                                                            It's a Mistake
+88                                                                         Jesus Christ Pose
+89                                      Karelia Suite, Op.11: 2. Ballade (Tempo Di Menuetto)
+90                                                                Knocking At Your Back Door
+91                                                                            Lay Down Sally
+92                                                                                     Leash
+93                                                                             Leper Messiah
+94                                                                            Like A Song...
+95                                                                        Lindo Lago Do Amor
+96                                                                          Linha Do Equador
+97                                                                          Live and Let Die
+98                                                                            Lixo Do Mangue
+99                                                                              Losfer Words
+100                                                                    Mama, I'm Coming Home
+101                                                                Maracatu De Tiro Certeiro
+102                                                                             Mateus Enter
+103                                                                          Maybe I'm A Leo
+104                                                                  Mensagen De Amor (2000)
+105                                                                           Meu Caro Amigo
+106                                                                                 Meu Erro
+107                                                             Midnight From The Inside Out
+108                                       Mis Penas Lloraba Yo (Ao Vivo) Soy Gitano (Tangos)
+109                                                                         Morena De Angola
+110                                                                                Most High
+111                                                                                 Mundaréu
+112 Music for the Funeral of Queen Mary: VI. "Thou Knowest, Lord, the Secrets of Our Hearts"
+113                                                                      Nega Do Cabelo Duro
+114                                                                                 No No No
+115                                                                               No Quarter
+116                                                                   Nossa Gente (Avisa Là)
+117                                                                              Nosso Adeus
+118                                                                            Não Vou Ficar
+119                                                             O Descobridor Dos Sete Mares
+120                                                                              O Leaozinho
+121                                                                         O Que Me Importa
+122                                                                                   Oceans
+123                                                                               On A Plain
+124                                                                            Pais E Filhos
+125                                                                                 Paranoid
+126                                                                           Pick Myself Up
+127                                                                                 Plot 180
+128                                                                               Podes Crer
+129                                                                    Ponto De Interrogação
+130                                                                               Powerslave
+131                                                                                   Praise
+132                                                                                Red Light
+133                                                                                Redundant
+134                                                                          Refavela (Live)
+135                                                                             Reggae Tchan
+136                                                                           Revolta Olodum
+137                                                                  Right Next Door to Hell
+138                                                                 Rios Pontes &amp; Overdrives
+139                                                                    Rock And Roll Is Dead
+140                                                                             Rocket Queen
+141                                                                               Saber Amar
+142                                                                            Samba Do Lado
+143                                                                                Sanctuary
+144                                        Saudade Dos Aviões Da Panair (Conversando No Bar)
+145                                                                     Scentless Apprentice
+146                                                                                 Selvagem
+147                                                                                   Sereia
+148                                                                                     Será
+149                                                                     Será Que Vai Chover?
+150                                                                       Seven Seas Of Rhye
+151                                                                       Shakes and Ladders
+152                                                                        Shout It Out Loud
+153                                                                             Sincero Breu
+154                                                                                  Slither
+155                                                                               Snowballed
+156                                                                         So Fast, So Numb
+157                                                                      Sometimes Salvation
+158                                                                             Soul Singing
+159                                                                   Stand Inside Your Love
+160                                                                        Stir It Up (Live)
+161     String Quartet No. 12 in C Minor, D. 703 "Quartettsatz": II. Andante - Allegro assai
+162                                                                                 Strutter
+163                                          Suite No. 3 in D, BWV 1068: III. Gavotte I &amp; II
+164                                                                           Sweetest Thing
+165       Symphony No. 2, Op. 16 -  "The Four Temperaments": II. Allegro Comodo e Flemmatico
+166                                                                        Take the Celestra
+167                                                                  The Day I Tried To Live
+168                                                                 The Great Gig In The Sky
+169                                                                       The Memory Remains
+170                                                                        The Unforgiven II
+171                                                                        The Unwritten Law
+172                                                                          Think About You
+173                                                                               Title Song
+174                                                                                  Top Top
+175                                                                               TriboTchan
+176                                                                    Um Satélite Na Cabeça
+177                                                                                 Untitled
+178                                                                                 Untitled
+179                                                                               Vai Passar
+180                                                                                Vai Valer
+181                                                                           Vamo Batê Lata
+182                                                                Vavoom : Ted The Mechanic
+183                                                        Voce Nao Entende Nada - Cotidiano
+184                                                                   Wanted Dread And Alive
+185                                                                                   Why Go
+186                                                                                 X-9 2001
+187                                                                    You're My Best Friend
+188                                                           You've Been A Long Time Coming
+189                                                                           Your Blue Room
+190                                                                            Água de Beber
+                                                                                Artist
+1                                                                            Pearl Jam
+2                                                                          Iron Maiden
+3                                                                         Cidade Negra
+4                                                                          Lulu Santos
+5                                                                         Marisa Monte
+6                                                                          Marvin Gaye
+7                                                                          Iron Maiden
+8                                                                         Cássia Eller
+9                                                                                   U2
+10                                                                                  U2
+11                                                                       Legião Urbana
+12                                                         Chico Science &amp; Nação Zumbi
+13                                                                           Pearl Jam
+14                                                                          Pink Floyd
+15                                                                     Mônica Marianno
+16                                                                                  U2
+17                                                                       Guns N' Roses
+18                                                                                  U2
+19                                                                           Metallica
+20                                                         Chico Science &amp; Nação Zumbi
+21                                                                         Men At Work
+22                                                                              R.E.M.
+23                                                                           Pearl Jam
+24                                                                              R.E.M.
+25                                                                              R.E.M.
+26                                                                           Pearl Jam
+27                                            Terry Bozzio, Tony Levin &amp; Steve Stevens
+28                                                             Os Paralamas Do Sucesso
+29                                                                         Planet Hemp
+30                                                                         Soundgarden
+31                                                                                Kiss
+32                                                     Frank Zappa &amp; Captain Beefheart
+33                                                                         Lulu Santos
+34                                                                   Milton Nascimento
+35                                                                         Deep Purple
+36                                                             Os Paralamas Do Sucesso
+37                                                                                Kiss
+38                                                                       Guns N' Roses
+39                                                                        Led Zeppelin
+40                                                                            Tim Maia
+41                                                                           Pearl Jam
+42                                                                     David Coverdale
+43                                                                        Marisa Monte
+44                                                                        Led Zeppelin
+45                                                                           Metallica
+46                                                                           Motörhead
+47                                                                     Mônica Marianno
+48                                                                           Pearl Jam
+49                                                                       Guns N' Roses
+50                                                                       Lenny Kravitz
+51                                                                        Cidade Negra
+52                                                                         Men At Work
+53                                                                         Men At Work
+54                                                                         Deep Purple
+55                                                                         Iron Maiden
+56                                                                       Guns N' Roses
+57                                                                              R.E.M.
+58                                                                            Tim Maia
+59                                                                         Men At Work
+60                                                      Battlestar Galactica (Classic)
+61                                                                   Smashing Pumpkins
+62                          Academy of St. Martin in the Fields &amp; Sir Neville Marriner
+63                                                                              Accept
+64                                                                         Soundgarden
+65                                                                       Ozzy Osbourne
+66                                                                        Led Zeppelin
+67                                                                       Guns N' Roses
+68                                                                               Queen
+69                                                                              R.E.M.
+70                                                                    The Black Crowes
+71                                                                               AC/DC
+72                                                                           Pearl Jam
+73                                                                         Gonzaguinha
+74                                                                           Marillion
+75                                                                               AC/DC
+76                                                                       Amy Winehouse
+77                                                                         Mötley Crüe
+78                                                                       Lenny Kravitz
+79                                                             Os Paralamas Do Sucesso
+80                                                                             Nirvana
+81                                                                        Led Zeppelin
+82                                                         Chico Science &amp; Nação Zumbi
+83                                                                     David Coverdale
+84                                                                             Nirvana
+85                                                                     Various Artists
+86                                                                        Gilberto Gil
+87                                                                         Men At Work
+88                                                                         Soundgarden
+89                                              Berliner Philharmoniker &amp; Hans Rosbaud
+90                                                                         Deep Purple
+91                                                                        Eric Clapton
+92                                                                           Pearl Jam
+93                                                                           Metallica
+94                                                                                  U2
+95                                                                         Gonzaguinha
+96                                                                        Cláudio Zoli
+97                                                                       Guns N' Roses
+98                                                         Chico Science &amp; Nação Zumbi
+99                                                                         Iron Maiden
+100                                                                      Ozzy Osbourne
+101                                                        Chico Science &amp; Nação Zumbi
+102                                                        Chico Science &amp; Nação Zumbi
+103                                                                        Deep Purple
+104                                                            Os Paralamas Do Sucesso
+105                                                                      Chico Buarque
+106                                                            Os Paralamas Do Sucesso
+107                                                                   The Black Crowes
+108                                                                       Cássia Eller
+109                                                                      Chico Buarque
+110                                                                       Page &amp; Plant
+111                                                                            O Terço
+112 Equale Brass Ensemble, John Eliot Gardiner &amp; Munich Monteverdi Orchestra and Choir
+113                                                                        Planet Hemp
+114                                                                        Deep Purple
+115                                                                       Led Zeppelin
+116                                                                             Olodum
+117                                                                           Tim Maia
+118                                                                           Tim Maia
+119                                                                           Tim Maia
+120                                                                      Chico Buarque
+121                                                                           Tim Maia
+122                                                                          Pearl Jam
+123                                                                            Nirvana
+124                                                                      Legião Urbana
+125                                                                      Ozzy Osbourne
+126                                                                      Lenny Kravitz
+127                                                                         Passengers
+128                                                                       Cidade Negra
+129                                                                        Gonzaguinha
+130                                                                        Iron Maiden
+131                                                                        Marvin Gaye
+132                                                                                 U2
+133                                                                          Green Day
+134                                                                       Gilberto Gil
+135                                                                    Various Artists
+136                                                                             Olodum
+137                                                                      Guns N' Roses
+138                                                        Chico Science &amp; Nação Zumbi
+139                                                                      Lenny Kravitz
+140                                                                      Guns N' Roses
+141                                                            Os Paralamas Do Sucesso
+142                                                        Chico Science &amp; Nação Zumbi
+143                                                                       Paul D'Ianno
+144                                                                  Milton Nascimento
+145                                                                            Nirvana
+146                                                            Os Paralamas Do Sucesso
+147                                                                        Lulu Santos
+148                                                                      Legião Urbana
+149                                                            Os Paralamas Do Sucesso
+150                                                                              Queen
+151                                                                        Men At Work
+152                                                                               Kiss
+153                                                            Os Paralamas Do Sucesso
+154                                                                          Metallica
+155                                                                              AC/DC
+156                                                                             R.E.M.
+157                                                                   The Black Crowes
+158                                                                   The Black Crowes
+159                                                                  Smashing Pumpkins
+160                                                                       Gilberto Gil
+161                                                             Emerson String Quartet
+162                                                                               Kiss
+163          Academy of St. Martin in the Fields, Sir Neville Marriner &amp; Thurston Dart
+164                                                                                 U2
+165                                                 Göteborgs Symfoniker &amp; Neeme Järvi
+166                                                     Battlestar Galactica (Classic)
+167                                                                        Soundgarden
+168                                                                         Pink Floyd
+169                                                                          Metallica
+170                                                                          Metallica
+171                                                                        Deep Purple
+172                                                                      Guns N' Roses
+173                                                                   The Black Crowes
+174                                                                        Os Mutantes
+175                                                                    Various Artists
+176                                                        Chico Science &amp; Nação Zumbi
+177                                                                          Pearl Jam
+178                                                                             R.E.M.
+179                                                                      Chico Buarque
+180                                                            Os Paralamas Do Sucesso
+181                                                            Os Paralamas Do Sucesso
+182                                                                        Deep Purple
+183                                                                      Chico Buarque
+184                                                                      Lenny Kravitz
+185                                                                          Pearl Jam
+186                                                                    Various Artists
+187                                                                              Queen
+188                                                                        Marvin Gaye
+189                                                                         Passengers
+190                                                                       Marcos Valle
+                                                              Album
+1                                                          Riot Act
+2                                                        Powerslave
+3                                               Acústico MTV [Live]
+4                   Lulu Santos - RCA 100 Anos De Música - Álbum 01
+5                                                    Barulhinho Bom
+6                 Seek And Shall Find: More Of The Best (1963-1981)
+7                                                        Powerslave
+8                                Cássia Eller - Sem Limite [Disc 1]
+9                                                    Rattle And Hum
+10                                            The Best Of 1980-1990
+11                       A TempestadeTempestade Ou O Livro Dos Dias
+12                                                   Afrociberdelia
+13                                                              Vs.
+14                                            Dark Side Of The Moon
+15                                                       Demorou...
+16                                                          Zooropa
+17                                              Use Your Illusion I
+18                                            The Best Of 1980-1990
+19                                                           ReLoad
+20                                                  Da Lama Ao Caos
+21                                          The Best Of Men At Work
+22                                          New Adventures In Hi-Fi
+23                                                        Pearl Jam
+24                                          New Adventures In Hi-Fi
+25                                          New Adventures In Hi-Fi
+26                                          Live On Two Legs [Live]
+27                                      [1997] Black Light Syndrome
+28                                                     Acústico MTV
+29                           Os Cães Ladram Mas A Caravana Não Pára
+30                                                          A-Sides
+31                                                    Greatest Kiss
+32                                                       Bongo Fury
+33                  Lulu Santos - RCA 100 Anos De Música - Álbum 01
+34                                                            Minas
+35                                              Deep Purple In Rock
+36                                  Arquivo Os Paralamas Do Sucesso
+37                                                    Greatest Kiss
+38                                              Use Your Illusion I
+39                                     BBC Sessions [Disc 1] [Live]
+40                                        Serie Sem Limite (Disc 1)
+41                                                         Riot Act
+42                                                   Into The Light
+43                                                   Barulhinho Bom
+44                                               Houses Of The Holy
+45                                                Master Of Puppets
+46                                                    Ace Of Spades
+47                                                       Demorou...
+48                                                              Vs.
+49                                              Use Your Illusion I
+50                                                    Greatest Hits
+51                                              Cidade Negra - Hits
+52                                          The Best Of Men At Work
+53                                          The Best Of Men At Work
+54                                              Come Taste The Band
+55                                                       Powerslave
+56                                              Use Your Illusion I
+57                                          New Adventures In Hi-Fi
+58                                        Serie Sem Limite (Disc 2)
+59                                          The Best Of Men At Work
+60                         Battlestar Galactica (Classic), Season 1
+61                                     Rotten Apples: Greatest Hits
+62                                The World of Classical Favourites
+63                                                Restless and Wild
+64                                                          A-Sides
+65                                                          Tribute
+66                                          In Through The Out Door
+67                                              Use Your Illusion I
+68                                                News Of The World
+69                                                            Green
+70                                                    Live [Disc 1]
+71                                                Let There Be Rock
+72                                                         Riot Act
+73                                                    Meus Momentos
+74                                              Misplaced Childhood
+75                                                Let There Be Rock
+76                                                            Frank
+77                                        Motley Crue Greatest Hits
+78                                                    Greatest Hits
+79                                                     Acústico MTV
+80                                                        Nevermind
+81                                          In Through The Out Door
+82                                                   Afrociberdelia
+83                                                   Into The Light
+84                       From The Muddy Banks Of The Wishkah [Live]
+85                                                    Carnaval 2001
+86                                     Quanta Gente Veio Ver (Live)
+87                                          The Best Of Men At Work
+88                                                          A-Sides
+89                                              Sibelius: Finlandia
+90  Knocking at Your Back Door: The Best Of Deep Purple in the 80's
+91                                             The Cream Of Clapton
+92                                                              Vs.
+93                                                Master Of Puppets
+94                                                              War
+95                                                    Meus Momentos
+96                                                         Na Pista
+97                                              Use Your Illusion I
+98                                                  Da Lama Ao Caos
+99                                                       Powerslave
+100                                      No More Tears (Remastered)
+101                                                 Da Lama Ao Caos
+102                                                  Afrociberdelia
+103                                                    Machine Head
+104                                                      Arquivo II
+105                                                  Minha Historia
+106                                 Arquivo Os Paralamas Do Sucesso
+107                                                   Live [Disc 1]
+108                              Cássia Eller - Sem Limite [Disc 1]
+109                                                  Minha Historia
+110                                         Walking Into Clarksdale
+111                                                    Compositores
+112                               Purcell: Music for the Queen Mary
+113                          Os Cães Ladram Mas A Caravana Não Pára
+114                                                        Fireball
+115                                              Houses Of The Holy
+116                                                          Olodum
+117                                       Serie Sem Limite (Disc 2)
+118                                       Serie Sem Limite (Disc 1)
+119                                       Serie Sem Limite (Disc 1)
+120                                                  Minha Historia
+121                                       Serie Sem Limite (Disc 2)
+122                                                             Ten
+123                                                       Nevermind
+124                                                   Mais Do Mesmo
+125                                                         Tribute
+126                                                   Greatest Hits
+127                                          Original Soundtracks 1
+128                                             Acústico MTV [Live]
+129                                                   Meus Momentos
+130                                                      Powerslave
+131               Seek And Shall Find: More Of The Best (1963-1981)
+132                                                             War
+133                                         International Superhits
+134                                    Quanta Gente Veio Ver (Live)
+135                                                  Axé Bahia 2001
+136                                                          Olodum
+137                                             Use Your Illusion I
+138                                                 Da Lama Ao Caos
+139                                                   Greatest Hits
+140                                        Appetite for Destruction
+141                                                      Arquivo II
+142                                                  Afrociberdelia
+143                                                  The Beast Live
+144                                                           Minas
+145                      From The Muddy Banks Of The Wishkah [Live]
+146                                                    Acústico MTV
+147                 Lulu Santos - RCA 100 Anos De Música - Álbum 01
+148                                                   Mais Do Mesmo
+149                                 Arquivo Os Paralamas Do Sucesso
+150                                                 Greatest Hits I
+151                                         The Best Of Men At Work
+152                                                   Greatest Kiss
+153                                                    Acústico MTV
+154                                                          ReLoad
+155                           For Those About To Rock We Salute You
+156                                         New Adventures In Hi-Fi
+157                                                   Live [Disc 1]
+158                                                   Live [Disc 2]
+159                                    Rotten Apples: Greatest Hits
+160                                    Quanta Gente Veio Ver (Live)
+161    Schubert: The Late String Quartets &amp; String Quintet (3 CD's)
+162                                                   Greatest Kiss
+163                              Bach: Orchestral Suites Nos. 1 - 4
+164                                           The Best Of 1980-1990
+165                                     Nielsen: The Six Symphonies
+166                        Battlestar Galactica (Classic), Season 1
+167                                                         A-Sides
+168                                           Dark Side Of The Moon
+169                                                          ReLoad
+170                                                          ReLoad
+171 Knocking at Your Back Door: The Best Of Deep Purple in the 80's
+172                                        Appetite for Destruction
+173                                                   Live [Disc 2]
+174                                                  Minha História
+175                                                  Axé Bahia 2001
+176                                                  Afrociberdelia
+177                                         Live On Two Legs [Live]
+178                                                           Green
+179                                                  Minha Historia
+180                                                    Acústico MTV
+181                                                    Acústico MTV
+182                                                   Purpendicular
+183                                                  Minha Historia
+184                                                   Greatest Hits
+185                                                             Ten
+186                                                   Carnaval 2001
+187                                                 Greatest Hits I
+188               Seek And Shall Find: More Of The Best (1963-1981)
+189                                          Original Soundtracks 1
+190                                          Chill: Brazil (Disc 1)</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Qual o álbum mais tocado por pais?</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(conn, </span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="st">"SELECT Country, AlbumId, AlbumTitle, ArtistName, total_plays</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="st">FROM (</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="st">    Country,</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="st">    AlbumId,</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="st">    AlbumTitle,</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="st">    ArtistName,</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="st">    total_plays,</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="st">    ROW_NUMBER() OVER (PARTITION BY Country ORDER BY total_plays DESC, AlbumTitle) AS rn</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM (</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT c.Country,</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="st">           a.AlbumId,</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="st">           a.Title    AS AlbumTitle,</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a><span class="st">           ar.Name    AS ArtistName,</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="st">           SUM(ii.Quantity) AS total_plays</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM customers c</span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a><span class="st">    JOIN invoices i        ON c.CustomerId = i.CustomerId</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a><span class="st">    JOIN invoice_items ii  ON i.InvoiceId = ii.InvoiceId</span></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a><span class="st">    JOIN tracks t          ON ii.TrackId = t.TrackId</span></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a><span class="st">    JOIN albums a          ON t.AlbumId = a.AlbumId</span></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a><span class="st">    LEFT JOIN artists ar   ON a.ArtistId = ar.ArtistId</span></span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a><span class="st">    GROUP BY c.Country, a.AlbumId</span></span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a><span class="st">  )</span></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a><span class="st">)</span></span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a><span class="st">WHERE rn = 1</span></span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a><span class="st">ORDER BY Country;"</span></span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          Country AlbumId
+1       Argentina     224
+2       Australia     113
+3         Austria     221
+4         Belgium       5
+5          Brazil      91
+6          Canada     168
+7           Chile     227
+8  Czech Republic      21
+9         Denmark      54
+10        Finland     141
+11         France      54
+12        Germany      70
+13        Hungary     236
+14          India      51
+15        Ireland     231
+16          Italy     224
+17    Netherlands     205
+18         Norway      56
+19         Poland     237
+20       Portugal     255
+21          Spain     221
+22         Sweden     225
+23            USA     251
+24 United Kingdom     151
+                                                         AlbumTitle
+1                                                          Acústico
+2                                                      The X Factor
+3                          My Generation - The Very Best Of The Who
+4                                                          Big Ones
+5                                               Use Your Illusion I
+6                                                        Arquivo II
+7                                    Battlestar Galactica, Season 3
+8                                                      Prenda Minha
+9                                                 Chronicle, Vol. 1
+10                                                    Greatest Hits
+11                                                Chronicle, Vol. 1
+12                                          Djavan Ao Vivo - Vol. 1
+13                                                              Pop
+14                                                      Up An' Atom
+15                                                   Lost, Season 2
+16                                                         Acústico
+17                                                          In Step
+18                       Cássia Eller - Coleção Sem Limite [Disc 2]
+19                                                   Rattle And Hum
+20 Instant Karma: The Amnesty International Campaign to Save Darfur
+21                         My Generation - The Very Best Of The Who
+22                                                      Volume Dois
+23                                             The Office, Season 3
+24                                                             Load
+                            ArtistName total_plays
+1                                Titãs           4
+2                          Iron Maiden           4
+3                              The Who           4
+4                            Aerosmith           4
+5                        Guns N' Roses           7
+6              Os Paralamas Do Sucesso           9
+7                 Battlestar Galactica           3
+8                       Caetano Veloso           5
+9         Creedence Clearwater Revival           4
+10                       Lenny Kravitz           5
+11        Creedence Clearwater Revival           7
+12                              Djavan           5
+13                                  U2           4
+14                          Gene Krupa           6
+15                                Lost           7
+16                               Titãs           4
+17 Stevie Ray Vaughan &amp; Double Trouble           4
+18                        Cássia Eller           4
+19                                  U2           4
+20                                  U2           4
+21                             The Who           5
+22                               Titãs           4
+23                          The Office          14
+24                           Metallica           5</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Qual o artista mais tocado por pais?</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dbGetQuery</span>(conn, </span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="st">"SELECT Country, ArtistId, ArtistName, total_plays</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="st">FROM (</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="st">  SELECT</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="st">    Country,</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="st">    ArtistId,</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="st">    ArtistName,</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="st">    total_plays,</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="st">    ROW_NUMBER() OVER (PARTITION BY Country ORDER BY total_plays DESC, ArtistName) AS rn</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="st">  FROM (</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT c.Country,</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="st">           ar.ArtistId,</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="st">           ar.Name AS ArtistName,</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="st">           SUM(ii.Quantity) AS total_plays</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM customers c</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a><span class="st">    JOIN invoices i        ON c.CustomerId = i.CustomerId</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a><span class="st">    JOIN invoice_items ii  ON i.InvoiceId = ii.InvoiceId</span></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a><span class="st">    JOIN tracks t          ON ii.TrackId = t.TrackId</span></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a><span class="st">    JOIN albums al         ON t.AlbumId = al.AlbumId</span></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a><span class="st">    JOIN artists ar        ON al.ArtistId = ar.ArtistId</span></span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a><span class="st">    GROUP BY c.Country, ar.ArtistId</span></span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a><span class="st">  )</span></span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a><span class="st">)</span></span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a><span class="st">WHERE rn = 1</span></span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a><span class="st">ORDER BY Country;"</span></span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          Country ArtistId                   ArtistName total_plays
+1       Argentina       50                    Metallica           6
+2       Australia       90                  Iron Maiden          18
+3         Austria      150                           U2           9
+4         Belgium       82                Faith No More           9
+5          Brazil      113      Os Paralamas Do Sucesso          11
+6          Canada      113      Os Paralamas Do Sucesso          16
+7           Chile       22                 Led Zeppelin           6
+8  Czech Republic       90                  Iron Maiden           9
+9         Denmark       76 Creedence Clearwater Revival           7
+10        Finland      152                    Van Halen           6
+11         France       76 Creedence Clearwater Revival          11
+12        Germany       90                  Iron Maiden          14
+13        Hungary       92                   Jamiroquai           5
+14          India       90                  Iron Maiden           8
+15        Ireland      149                         Lost           8
+16          Italy       82                Faith No More           5
+17    Netherlands      127        Red Hot Chili Peppers           6
+18         Norway       22                 Led Zeppelin           9
+19         Poland      150                           U2           6
+20       Portugal       90                  Iron Maiden          16
+21          Spain      118                    Pearl Jam           6
+22         Sweden      146                        Titãs           5
+23            USA       90                  Iron Maiden          34
+24 United Kingdom       50                    Metallica           9</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dbDisconnect</span>(conn)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
