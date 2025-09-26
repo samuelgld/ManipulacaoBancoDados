@@ -127,7 +127,6 @@ course_avg AS (
 
 ```
 
-
 ```{r}
 # para encontrar o professor mais difícil selecionamos o menor gpa médio
 
@@ -170,7 +169,6 @@ busca <- paste(segregar_gpas, disc_dificil)
 RSQLite::dbGetQuery(conn, busca)
 ```
 
-
 ```{r}
 # para encontrar a disciplina mais facil selecionamos o maior gpa médio
 
@@ -185,9 +183,9 @@ RSQLite::dbGetQuery(conn, busca)
 
 ```
 
-
 # 4 - Desconecte do banco de dados.
 ```{r}
 RSQLite::dbDisconnect(conn)
 ```
+
 
