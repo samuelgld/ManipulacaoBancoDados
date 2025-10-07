@@ -1,0 +1,180 @@
+---
+title: "desafio_11"
+format: html
+editor: visual
+---
+
+## Desafio 11
+
+```{r echo=FALSE} 
+library(reticulate)
+
+```
+
+1 - Utilizando o arquivo renda_adulta.csv e sabendo que ele não possui cabeçalho, faça a importação do banco de dados utilizando os nomes das colunas conforme apresentado acima e na sequência ali indicada. No momento da importação do arquivo, você deve, também, indicar os tipos de cada uma das colunas. Utilize o fato de que o símbolo ? representa valores faltantes.
+
+```{python}
+
+import polars as pl
+
+# Define nomes e tipos das colunas baseados no esquema
+nomes_colunas = [
+    "age", "workclass", "fnhugt", "education", "education-num",
+    "marital-status", "occupation", "relationship", "race", "sex",
+    "capital-gain", "capital-loss", "hours-per-week", "native-country", "income"
+]
+
+#Define os tipos corretos de variaveis para cada coluna
+tipos_colunas = {
+    "age": pl.Int64,
+    "workclass": pl.Categorical,
+    "fnhugt": pl.Int64,
+    "education": pl.Categorical,
+    "education-num": pl.Int64,
+    "marital-status": pl.Categorical,
+    "occupation": pl.Categorical,
+    "relationship": pl.Categorical,
+    "race": pl.Categorical,
+    "sex": pl.Categorical,
+    "capital-gain": pl.Int64,
+    "capital-loss": pl.Int64,
+    "hours-per-week": pl.Int64,
+    "native-country": pl.Categorical,
+    "income": pl.Categorical
+}
+
+# Carrega o arquivo CSV
+df = pl.read_csv(
+    "renda_adulta.csv.gz",
+    has_header = False,  # sem cabeçalho
+    new_columns = nomes_colunas,  # seta os nomes das colunas
+    schema_overrides = tipos_colunas,  # seta os tipos das colunas
+    null_values = "?"  # Trata "?" como nulo
+)
+
+```
+
+2 - Apresente os tipos de cada uma das coluna.
+
+```{python}
+# Exibe os tipos de cada coluna
+print("Tipos das colunas:")
+print(df.schema)
+
+```
+
+3 - Apresente as dimensões da tabela de dados.
+
+```{python}
+
+# Exibe as dimensões do DataFrame (linhas, colunas)
+print(f"\nDimensões do DataFrame: {df.shape}")
+
+```
+
+4 - Quantas pessoas recebem acima de $50.000 e quantas pessoas recebem abaixo deste limiar?
+
+```{python}
+#separa por renda
+df.group_by("income").len().sort("income")
+
+```
+
+5 - Crie um objeto chamado renda_longo, no qual você transforma as colunas capital-gain e capital-loss (formato wide) para formato longo. Os valores destas variáveis devem ser armazenados numa nova coluna chamada Valor e os tipos de valores (gain e loss) devem ser armazenados numa coluna chamada tipo.
+
+```{python}
+
+# Cria o objeto renda_longo no formato longo
+# igual o pivot.wider do R
+renda_longo = df.melt(
+    id_vars = [col for col in df.columns if col not in ["capital-gain", "capital-loss"]],
+    value_vars = ["capital-gain", "capital-loss"],
+    variable_name = "tipo",
+    value_name = "Valor"
+)
+
+print(renda_longo.head(5))
+
+```
+
+6 - Quais são as médias de horas trabalhadas por classe salarial?
+
+```{python}
+#agrega e tira media
+df.group_by("income").agg(
+    pl.col("hours-per-week").mean().alias("media_horas_trabalhadas")
+)
+
+```
+
+7 - Se cada linha representa uma pessoa, quantas pessoas foram amostradas em cada profissão?
+
+```{python}
+
+#agrega por profissão e conta
+df.group_by("occupation").agg(
+    pl.len().alias("numero_pessoas")
+)
+
+```
+
+8 - Crie um gráfico de barras que apresente o número médio de horas trabalhadas semanalmente em função do nível salarial.
+
+```{python}
+
+# Agrega e  calcula a media de horas trabalhadas por nivel salarial
+horas_por_salario = df.group_by("income").agg(
+    pl.col("hours-per-week").mean().alias("media_horas")
+)
+
+# Criar grafico usando a funcionalidade de plot do Polars
+#chart = horas_por_salario.plot(
+#    x="income",
+#    y="media_horas",
+#    title=f"Numero Medio de Horas Trabalhadas por Semana (Compilado em: {compilacao_time})",
+#    color=["skyblue", "lightcoral"]
+#)
+
+#O .plot não funcionbou, então fiz um grafico em ASCII mesmo
+
+print("GRÁFICO DE BARRAS - MÉDIA DE HORAS TRABALHADAS POR SEMANA")
+print("=" * 50)
+
+for row in horas_por_salario.iter_rows():
+    categoria, media = row
+    barras = "█" * int(media)
+    print(f"{categoria:>6}: {barras} ({media:.1f} horas)")
+
+print("\nLegenda: Cada '█' representa 1 hora de trabalho")
+
+
+
+```
+
+9 - Desafio: existe alguma evidência de discriminação salarial entre gêneros biológicos?
+
+```{python}
+
+# Vamos analisar a  diferença nas proporções
+total_por_genero = df.group_by("sex").agg(pl.len().alias("total"))
+alta_renda_por_genero = df.filter(pl.col("income") == ">50K").group_by("sex").agg(pl.len().alias("alta_renda"))
+
+proporcao = total_por_genero.join(alta_renda_por_genero, on="sex").with_columns(
+    (pl.col("alta_renda") / pl.col("total") * 100).alias("percentual_alta_renda")
+)
+
+print("Taxa de alta renda por gênero:")
+print(proporcao)
+
+```
+Os homens tem 3x mais chance de ganharem mais de 50k
+
+## Data e Hora de COmpilação
+```{python}
+from datetime import datetime
+
+compilacao_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+print(f"Arquivo compilado em: {compilacao_time}")
+```
+
+
