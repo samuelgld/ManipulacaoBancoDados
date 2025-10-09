@@ -1,0 +1,204 @@
+---
+title: "desafio_12"
+format: html
+editor: visual
+---
+
+# Importando pacotes 
+
+```{r}
+
+#Cria ambiente python encapsulado
+library(reticulate)
+
+```
+
+```{python}
+
+#importa os pacotes polars e sqlite
+import polars as pl
+import sqlite3
+
+```
+
+
+
+```{python}
+
+#Cria o data.db e abre uma coneção com o banco
+conn = sqlite3.connect('/datadb.db')
+cursor = conn.cursor()
+
+```
+
+```{python}
+
+#Cria a tabela de vendas com a colunas id, vendedor, produto, valor e data
+cursor.execute('''
+CREATE TABLE vendas (
+    id INTEGER PRIMARY KEY,
+    vendedor TEXT,
+    produto TEXT,
+    valor REAL,
+    data_venda DATE
+)
+''')
+
+```
+```{python}
+
+#Popula a tabela vendas
+cursor.execute('''
+INSERT INTO vendas (vendedor, produto, valor, data_venda)
+VALUES
+    ('Ana', 'Produto A', 120.5, '2024-09-01'),
+    ('Carlos', 'Produto B', 200.0, '2024-10-02'),
+    ('Ana', 'Produto C', 150.0, '2024-09-03'),
+    ('Bruno', 'Produto A', 300.0, '2024-11-04'),
+    ('Carlos', 'Produto C', 100.0, '2024-10-05');
+''')
+conn.commit()
+
+```
+
+```{python}
+
+#Busca as vendas da tabela vendas
+cursor.execute("SELECT * FROM vendas")
+rows = cursor.fetchall()
+for row in rows:
+  print(row)
+  
+```
+
+```{python}
+
+#Cria um DataFrame em polars com a query em sql
+dados = pl.read_database("SELECT * FROM vendas", conn)
+print(dados)
+
+```
+
+```{python}
+
+#Soma todas as vendas, por vendedor
+vendas_total = pl.read_database('''
+   SELECT vendedor, SUM(valor) as total_vendas
+   FROM vendas
+   GROUP BY vendedor;
+''', conn)
+print(vendas_total)
+
+```
+
+```{python}
+
+#Tira a média das vendas, por vendedor
+vendas_medias = pl.read_database('''
+   SELECT vendedor, AVG(valor) as total_vendas
+   FROM vendas
+   GROUP BY vendedor;
+''', conn)
+print(vendas_medias)
+
+```
+
+```{python}
+
+#Agrupa as estatísticas das vendas, em um único DataFrame
+vendas_comb = pl.read_database("""
+SELECT vendedor, 
+       COUNT(*) as numero_vendas,
+       SUM(valor) as total_vendas, 
+       AVG(valor) as media_vendas
+FROM vendas
+GROUP BY vendedor;
+""", conn)
+print(vendas_comb)
+
+```
+
+```{python}
+
+#Seleciona vendas acima ou igual a 200
+ticket_alto = pl.read_database("""
+SELECT * FROM vendas WHERE valor >= 200
+""", conn)
+print(ticket_alto)
+
+```
+```{python}
+
+#Particiona o total das vendas por mês
+vendas_mensais = pl.read_database("""
+SELECT strftime('%Y-%m', data_venda) AS mes, SUM(valor) AS total_vendas
+FROM vendas GROUP BY mes ORDER BY mes
+""", conn)
+print(vendas_mensais)
+
+```
+
+```{python}
+
+#Cria e Popula a tabela produtos
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS produtos (
+    id INTEGER PRIMARY KEY,
+    nome TEXT NOT NULL,
+    categoria TEXT NOT NULL,
+    preco REAL NOT NULL,
+    estoque INTEGER NOT NULL
+);
+''')
+cursor.execute('''
+INSERT INTO produtos (nome, categoria, preco, estoque) VALUES
+    ('Produto A', 'Categoria 1', 100.0, 50),
+    ('Produto B', 'Categoria 2', 150.0, 30),
+    ('Produto C', 'Categoria 1', 200.0, 20),
+    ('Produto D', 'Categoria 2', 250.0, 10),
+    ('Produto E', 'Categoria 3', 300.0, 0);
+''')
+conn.commit()
+
+```
+```{python}
+
+#Seleciona os produtos da tabela
+prods = pl.read_database("SELECT * FROM produtos", conn)
+print(prods)
+
+```
+```{python}
+
+#Afere os lucros por produto
+lucros = pl.read_database("""
+SELECT produto, valor AS compra, preco AS venda, preco-valor AS lucro
+FROM vendas
+INNER JOIN produtos ON vendas.produto = produtos.nome
+""", conn)
+print(lucros)
+
+```
+
+```{python}
+
+#Calcula lucro médio
+lucro_medio = pl.read_database("""
+SELECT vendedor, produto, AVG(preco-valor) AS lucro_medio
+FROM vendas
+INNER JOIN produtos ON vendas.produto = produtos.nome
+GROUP BY vendedor
+""", conn)
+print(lucro_medio)
+
+```
+
+## Data e Hora de COmpilação
+
+```{python}
+from datetime import datetime
+
+compilacao_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+print(f"Arquivo compilado em: {compilacao_time}")
+```
+
